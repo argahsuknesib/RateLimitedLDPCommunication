@@ -1,6 +1,4 @@
-import { Communication } from "@treecg/versionawareldesinldp";
-
-export class RateLimitedLDPCommunication implements Communication {
+export class RateLimitedLDPCommunication {
     private readonly burstLimit: number;
     private readonly interval: number;
     private lastRequestTime: number;
@@ -31,77 +29,63 @@ export class RateLimitedLDPCommunication implements Communication {
         this.tokenBucket -= 1;
     }
 
-    private async fetchWithRateLimit(url: string, options: RequestInit): Promise<Response> {
+    private async fetchWithRateLimit(url: string, options: RequestInit | null): Promise<Response | null> {
         await this.consumeToken();
         try {
-            const response = await fetch(url, options);
-
-            if (!response.ok) {
-                throw new Error(`Request failed with status: ${response.status}`);
+            if (options !== null) {
+                const response = await fetch(url, options);
+                if (!response.ok) {
+                    console.log(`Request failed with status: ${response.status}`);
+                    return null;
+                }
+                return response;
+            } else {
+                return null;
             }
-
-            return response;
         } catch (error: any) {
-            throw new Error(`Request failed: ${error.message}`);
+            console.log(`Request failed: ${error.message}`);
+            return null;
         }
     }
 
-    public async get(resourceIdentifier: string, headers?: Headers): Promise<Response> {
-        headers = headers ? headers : new Headers({
-            'Content-Type': 'text/turtle',
-        });
-        const options: RequestInit = {
-            method: "GET",
-            headers: headers,
-        };
-        return this.fetchWithRateLimit(resourceIdentifier, options);
+    public async get(resourceIdentifier: string, headers?: Headers): Promise<Response | null> {
+        const requestOptions: RequestInit | null = headers
+            ? { method: "GET", headers: headers }
+            : null;
+
+        return this.fetchWithRateLimit(resourceIdentifier, requestOptions);
     }
 
-    public async head(resourceIdentifier: string): Promise<Response> {
+    public async head(resourceIdentifier: string): Promise<Response | null> {
         const options: RequestInit = {
             method: "HEAD",
         };
         return this.fetchWithRateLimit(resourceIdentifier, options);
     }
 
-    public async post(resourceIdentifier: string, body?: string, headers?: Headers): Promise<Response> {
-        headers = headers ? headers : new Headers({
-            'Content-Type': 'text/turtle',
-        });
-        const options: RequestInit = {
-            method: "POST",
-            body: body,
-            headers: headers,
-        };
+    public async post(resourceIdentifier: string, body?: string, headers?: Headers): Promise<Response | null> {
+        const options: RequestInit | null = headers
+            ? { method: "POST", headers: headers, body: body }
+            : null;
         return this.fetchWithRateLimit(resourceIdentifier, options);
     }
 
-    public async put(resourceIdentifier: string, body?: string, headers?: Headers): Promise<Response> {
-        headers = headers ? headers : new Headers({
-            'Content-Type': 'text/turtle',
-        });
-        const options: RequestInit = {
-            method: "PUT",
-            body: body,
-            headers: headers,
-        };
+    public async put(resourceIdentifier: string, body?: string, headers?: Headers): Promise<Response | null> {
+        const options: RequestInit | null = headers
+            ? { method: "PUT", headers: headers, body: body }
+            : null;
         return this.fetchWithRateLimit(resourceIdentifier, options);
     }
 
-    public async patch(resourceIdentifier: string, body?: string, headers?: Headers): Promise<Response> {
-        headers = headers ? headers : new Headers({
-            'Content-Type': 'application/sparql-update',
-        });
-        const options: RequestInit = {
-            method: "PATCH",
-            body: body,
-            headers: headers,
-        };
+    public async patch(resourceIdentifier: string, body?: string, headers?: Headers): Promise<Response | null> {
+        const options: RequestInit | null = headers
+            ? { method: "PATCH", headers: headers, body: body }
+            : null;
         return this.fetchWithRateLimit(resourceIdentifier, options);
     }
 
-    public async delete(resourceIdentifier: string): Promise<Response> {
-        const options: RequestInit = {
+    public async delete(resourceIdentifier: string): Promise<Response | null> {
+        const options: RequestInit | null = {
             method: "DELETE",
         };
         return this.fetchWithRateLimit(resourceIdentifier, options);
