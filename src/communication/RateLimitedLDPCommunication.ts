@@ -35,10 +35,6 @@ export class RateLimitedLDPCommunication implements Communication {
         await this.consumeToken();
         try {
             const response = await fetch(url, options);
-
-            if (!response.ok) {
-                throw new Error(`Request failed with status: ${response.status}`);
-            }
             return response;
         } catch (error: any) {
             console.log(`Request failed: ${error.message}`);
