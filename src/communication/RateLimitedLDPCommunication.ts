@@ -3,11 +3,13 @@ import { Communication } from "@treecg/versionawareldesinldp";
 export class RateLimitedLDPCommunication implements Communication {
     private readonly burstLimit: number;
     private readonly interval: number;
+    private readonly connectionTimeout: number;
     private lastRequestTime: number;
     private tokenBucket: number;
 
-    public constructor(burstLimit: number, interval?: number) {
+    public constructor(burstLimit: number, interval?: number, connectionTimeout?: number) {
         this.burstLimit = burstLimit;
+        this.connectionTimeout = connectionTimeout || 10000;
         this.interval = interval || 1000;
         this.lastRequestTime = 0;
         this.tokenBucket = burstLimit;
@@ -37,7 +39,7 @@ export class RateLimitedLDPCommunication implements Communication {
             const response = await fetch(url, options);
             return response;
         } catch (error: any) {
-            console.log(`Request failed: ${error.message}`);
+            console.log(`request failed: ${error.message}`);
             return new Response(undefined, {
                 status: 500,
                 statusText: error.message,

@@ -1,6 +1,6 @@
 {
     "name": "rate-limited-ldp-communication",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "description": "Rate limiting LDP communication to handle the issue of socket hangup in Solid Pod Server",
     "main": "dist/index.js",
     "scripts": {
@@ -20,6 +20,6 @@
         "typescript": "^4.9.4"
     },
     "dependencies": {
-        "@treecg/versionawareldesinldp": "^0.2.2"
+        "@treecg/versionawareldesinldp": "^0.3.0"
     }
 }
