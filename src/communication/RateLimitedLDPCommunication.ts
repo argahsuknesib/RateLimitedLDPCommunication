@@ -36,6 +36,7 @@ export class RateLimitedLDPCommunication implements Communication {
     private async fetchWithRateLimit(url: string, options: RequestInit): Promise<Response> {
         await this.consumeToken();
         try {
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
             const response = await fetch(url, options);
             return response;
         } catch (error: any) {
